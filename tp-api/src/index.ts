@@ -44,6 +44,21 @@ app.get('/occupations', async (req, res) => {
     }
   });
 
+  app.get('/occupations/search', async (req, res) => {
+    try {
+      const query = (req.query.q as string)?.toLowerCase() ?? '';
+      await loadIscoData();
+      const results = getAllIscoItems()
+        .filter((item) => item.value.toLowerCase().includes(query))
+        .map((item) => ({ code: item.code, name: item.value }));
+  
+      res.json(results);
+    } catch (err) {
+      console.error('Otsing ebaõnnestus:', err);
+      res.status(500).json({ error: 'Otsing ebaõnnestus' });
+    }
+  });
+  
 
 app.listen(PORT, async () => {
     console.log(`Server töötab pordil ${PORT}`);

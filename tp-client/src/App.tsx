@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { Button, Stack } from '@mui/material';
@@ -50,6 +50,7 @@ const FormContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
+type Occupation = { code: string; name: string };
 
 function App() {
   const [occupation, setOccupation] = useState<string | null>(null);
@@ -69,10 +70,10 @@ function App() {
 
   const handleActivityChange = (val: string | null) => {
     setActivity(val);
-  
+
     if (val) {
       const selectedActivity = activities.find((a) => a.code === val);
-  
+
       if (selectedActivity && occupation && !selectedActivity.isco.includes(occupation)) {
         setOccupation(null); // tühista amet kui see ei sobi valdkonnaga
       }
@@ -89,7 +90,10 @@ function App() {
           <h1>Palga otsing</h1>
           <p>Palga otsing on tööriist, mis aitab sul leida infot vasta valdkonna või ameti palga kohta.</p>
           <Stack spacing={3} alignItems="center" padding={4}>
-            <OccupationDropdown value={occupation} onChange={handleOccupationChange} />
+            <OccupationDropdown
+              value={occupation}
+              onChange={handleOccupationChange}
+            />
             <ActivityDropdown occupationCode={occupation} value={activity} onChange={handleActivityChange} />
             <Button
               variant="contained"
