@@ -1,59 +1,104 @@
-import fs from "fs/promises"; // NB! lubab await kasutada
-import path from "path";
+// src/utils/iscoLoader.ts
+import fs from 'fs/promises';
+import path from 'path';
 
-export interface IscoItem {
-  code: string;
-  value: string;
-  level: string;
-  parentCode?: string;
+export class IscoNode {
+  constructor(
+    public code: string,
+    public name: string,
+    public level: string,
+    public parentCode?: string,
+    public parentName?: string
+  ) {}
+
+  get label(): string {
+    return this.name;
+  }
+
+  get display(): string {
+    if (
+      this.parentName &&
+      this.parentName !== this.name &&
+      !this.name.toLowerCase().startsWith(this.parentName.toLowerCase())
+    ) {
+      return `${this.parentName} – ${this.name}`;
+    }
+    return this.name;
+  }
 }
 
-let iscoList: IscoItem[] | null = null;
+let iscoList: IscoNode[] | null = null;
 
 export async function loadIscoData(): Promise<void> {
   if (iscoList !== null) return;
 
-  const filePath = path.join(__dirname, "../../data/occupations.json");
-  const rawText = await fs.readFile(filePath, "utf-8");
+  const filePath = path.join(__dirname, '../../data/occupations.json');
+  const rawText = await fs.readFile(filePath, 'utf-8');
   const parsed = JSON.parse(rawText);
 
   const items = parsed.Items;
   if (!Array.isArray(items)) {
-    throw new Error("ISO klassifikaatori fail on vigane");
+    throw new Error('ISCO klassifikaatori fail on vigane');
   }
 
-  iscoList = items
+  const allNodes: IscoNode[] = items
     .filter((item: any) => item.Code)
-    .map((item: any) => ({
-      code: item.Code,
-      value: item.Label?.["et-EE"] ?? "(nimetu)",
-      level: item.ItemLevel,
-      parentCode: item.ParentItem?.Code ?? undefined,
-    }));
+    .map(
+      (item: any) =>
+        new IscoNode(
+          item.Code,
+          item.Label?.['et-EE'] ?? '(nimetu)',
+          item.ItemLevel,
+          item.ParentItem?.Code ?? undefined
+        )
+    );
 
+  // leia level 3 parentid ametirühma kuvamiseks (level 4 ja 5 jaoks)
+  for (const node of allNodes) {
+    if (!['4', '5'].includes(node.level)) continue;
+
+    let parent = allNodes.find((p) => p.code === node.parentCode);
+    while (parent && parent.level !== '3') {
+      parent = allNodes.find((p) => p.code === parent?.parentCode);
+    }
+
+    if (parent) {
+      node.parentName = parent.name;
+    }
+  }
+
+  iscoList = allNodes;
   console.log(`Laaditi ${iscoList.length} ISCO ametit`);
 }
 
-export function getAllIscoItems(): IscoItem[] {
+export function getAllIscoItems(): IscoNode[] {
   if (!iscoList) {
-    throw new Error("ISCO andmed pole veel laetud. Käivita loadIscoData() kõigepealt.");
+    throw new Error('ISCO andmed pole veel laetud. Käivita loadIscoData() kõigepealt.');
   }
   return iscoList;
 }
 
-export function findIscoItemByCode(code: string): IscoItem | undefined {
+export function findIscoItemByCode(code: string): IscoNode | undefined {
   if (!iscoList) {
-    throw new Error("ISCO andmed pole veel laetud. Käivita loadIscoData() kõigepealt.");
+    throw new Error('ISCO andmed pole veel laetud. Käivita loadIscoData() kõigepealt.');
   }
   return iscoList.find((i) => i.code === code);
 }
 
-export function findGroupCodeFor(code: string, fallbackLevels: string[] = ["4", "3"]): string | null {
-  let item = findIscoItemByCode(code);
-  while (item) {
-    if (fallbackLevels.includes(item.level)) return item.code;
-    if (!item.parentCode) break;
-    item = findIscoItemByCode(item.parentCode);
+export function findGroupCodeFor(code: string, targetLevels: string[] = ['4', '3']): string | null {
+  if (!iscoList) {
+    throw new Error('ISCO andmed pole veel laetud.');
   }
+
+  let current = findIscoItemByCode(code);
+
+  while (current) {
+    if (targetLevels.includes(current.level)) {
+      return current.code;
+    }
+    if (!current.parentCode) break;
+    current = findIscoItemByCode(current.parentCode);
+  }
+
   return null;
 }

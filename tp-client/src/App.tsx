@@ -50,7 +50,6 @@ const FormContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
-type Occupation = { code: string; name: string };
 
 function App() {
   const [occupation, setOccupation] = useState<string | null>(null);
