@@ -1,11 +1,7 @@
-// components/ActivityDropdown.tsx
 import { useEffect, useMemo, useState } from 'react';
 import { Autocomplete, CircularProgress, TextField } from '@mui/material';
-
-type Option = {
-  code: string;
-  name: string;
-};
+import { fetchActivities } from '../services/fetch';
+import { Option } from '../classes/types';
 
 type Props = {
   value: string | null;
@@ -18,38 +14,32 @@ export const ActivityDropdown = ({ value, onChange }: Props) => {
   const [selected, setSelected] = useState<Option | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Lae valitud tegevusala
   useEffect(() => {
     if (!value) {
       setSelected(null);
       return;
     }
-  
+
     if (selected?.code === value) return;
-  
-    fetch(`http://localhost:3000/activities/search?q=${encodeURIComponent(value)}`)
-      .then((res) => res.json())
-      .then((data: Option[]) => {
+
+    fetchActivities(value)
+      .then((data) => {
         const match = data.find((o) => o.code === value);
         if (match) {
           setSelected(match);
-          setSearchValue(''); // ← oluline: puhastab käsitsi sisestuse
+          setSearchValue('');
         }
       })
       .catch((err) => console.error('Tegevusala otsing ebaõnnestus:', err));
   }, [value]);
 
-  // Tähehaaval otsing
   useEffect(() => {
     if (searchValue.length < 2 || !/[a-zA-ZäöüõÄÖÜÕ0-9]/.test(searchValue)) return;
 
     setLoading(true);
     const controller = new AbortController();
 
-    fetch(`http://localhost:3000/activities/search?q=${encodeURIComponent(searchValue)}`, {
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
+    fetchActivities(searchValue)
       .then(setOptions)
       .catch((err) => {
         if (err.name !== 'AbortError') console.error(err);

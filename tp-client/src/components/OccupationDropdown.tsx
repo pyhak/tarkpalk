@@ -1,17 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Autocomplete,
-  CircularProgress,
-  TextField,
-  Typography,
-  Box,
-} from '@mui/material';
-
-type Option = {
-  code: string;
-  name: string;
-  category: string;
-};
+import { Autocomplete, CircularProgress, TextField } from '@mui/material';
+import { fetchOccupations } from '../services/fetch';
+import { Option } from '../classes/types';
 
 type Props = {
   value: string | null;
@@ -32,11 +22,12 @@ export const OccupationDropdown = ({ value, onChange }: Props) => {
 
     if (selected?.code === value) return;
 
-    fetch(`http://localhost:3000/occupations/search?q=${encodeURIComponent(value)}`)
-      .then((res) => res.json())
-      .then((data: Option[]) => {
+    fetchOccupations(value)
+      .then((data) => {
         const match = data.find((o) => o.code === value);
-        if (match) setSelected(match);
+        if (match) {
+          setSelected(match);
+        }
       })
       .catch((err) => console.error('Ametit ei leitud:', err));
   }, [value]);
@@ -47,10 +38,7 @@ export const OccupationDropdown = ({ value, onChange }: Props) => {
     setLoading(true);
     const controller = new AbortController();
 
-    fetch(`http://localhost:3000/occupations/search?q=${encodeURIComponent(searchValue)}`, {
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
+    fetchOccupations(searchValue)
       .then(setOptions)
       .catch((err) => {
         if (err.name !== 'AbortError') console.error(err);
@@ -69,28 +57,36 @@ export const OccupationDropdown = ({ value, onChange }: Props) => {
 
   return (
     <Autocomplete
-      fullWidth
       options={combinedOptions}
-      groupBy={(option) => option.category}
-      value={selected}
-      inputValue={searchValue || selected?.name || ''}
-      onInputChange={(_, val, reason) => {
-        if (reason === 'input') setSearchValue(val);
-        if (reason === 'clear' || reason === 'reset') setSearchValue('');
+      getOptionLabel={(o) => {
+        const isTopLevel = o.code.length === 1;
+        const indent = isTopLevel ? '' : '\u00A0\u00A0\u00A0\u00A0';
+        return `${indent}${o.name}`;
       }}
+      value={selected}
+      fullWidth
       onChange={(_, newValue) => {
         setSelected(newValue);
         onChange(newValue?.code || null);
         setSearchValue('');
       }}
-      getOptionLabel={(o) => o.name}
-      renderOption={(props, option) => (
-        <li {...props}>
-          <Box pl={2}>
-            <Typography variant="body2">{option.name}</Typography>
-          </Box>
-        </li>
-      )}
+      inputValue={searchValue || selected?.name || ''}
+      onInputChange={(_, val, reason) => {
+        if (reason === 'input') {
+          setSearchValue(val);
+        }
+        if (reason === 'clear' || reason === 'reset') {
+          setSearchValue('');
+        }
+      }}
+      renderOption={(props, option) => {
+        const isTopLevel = option.code.length === 1;
+        return (
+          <li {...props}>
+            <span style={{ paddingLeft: isTopLevel ? 0 : 16 }}>{option.name}</span>
+          </li>
+        );
+      }}
       renderInput={(params) => (
         <TextField
           {...params}
