@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const METADATA_URL = 'https://andmed.stat.ee/api/v1/et/stat/PA103';
+import { STAT_API_BASE } from '../config';
 
 export interface ActivityOption {
   code: string;
@@ -8,7 +7,7 @@ export interface ActivityOption {
 }
 
 export async function getActivityOptions(): Promise<ActivityOption[]> {
-  const response = await axios.get(METADATA_URL);
+  const response = await axios.get(STAT_API_BASE);
   const variables = (response.data as { variables: any[] }).variables;
 
   const activityVar = variables.find((v: any) => v.code === 'Tegevusala');
@@ -19,22 +18,22 @@ export async function getActivityOptions(): Promise<ActivityOption[]> {
   const codes = activityVar.values;
   const names = activityVar.valueTexts;
 
-  const options: ActivityOption[] = codes.map((code: string, i: number) => ({
+  return codes.map((code: string, i: number) => ({
     code,
     name: names[i],
   }));
-
-  return options;
 }
 
-export async function fetchSalaryDataByGroupCode(groupCode: string): Promise<{ year: string; salary: number }[]> {
+export async function fetchSalaryDataByGroupCode(
+  groupCode: string
+): Promise<{ year: string; salary: number }[]> {
   const query = {
     query: [
       {
         code: 'Näitaja',
         selection: {
           filter: 'item',
-          values: ['GR_W_AVG'], // Keskmine brutokuupalk
+          values: ['GR_W_AVG'],
         },
       },
       {
@@ -50,22 +49,17 @@ export async function fetchSalaryDataByGroupCode(groupCode: string): Promise<{ y
     },
   };
 
-  const res = await axios.post(METADATA_URL, query, {
+  const res = await axios.post(STAT_API_BASE, query, {
     headers: { 'Content-Type': 'application/json' },
   });
 
   const { value, dimension } = res.data;
   const periods = dimension['Vaatlusperiood'].category.index;
-  const results: { year: string; salary: number }[] = [];
 
-  Object.entries(periods).forEach(([key, idx]) => {
-    const salaryValue = (value as number[])[Number(idx)];
-    if (typeof salaryValue === 'number') {
-      results.push({ year: key, salary: salaryValue });
-    }
-  });
-
-  results.sort((a, b) => parseInt(a.year) - parseInt(b.year));
-
-  return results;
+  return Object.entries(periods)
+    .map(([year, idx]) => {
+      const val = (value as number[])[Number(idx)];
+      return typeof val === 'number' ? { year, salary: val } : null;
+    })
+    .filter(Boolean) as { year: string; salary: number }[];
 }
