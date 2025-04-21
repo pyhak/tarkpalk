@@ -1,103 +1,96 @@
 # 💼 Palgaotsing
 
-**Palgaotsing** on veebirakendus, mis võimaldab kasutajatel leida palgaandmeid ametite ja tegevusalade lõikes ning näha AI-põhist prognoosi tuleviku kohta.
+**Palgaotsing** on täislahendus, mis võimaldab leida palgaandmeid ametite ja tegevusalade lõikes ning näha AI abil loodud prognoosi. Projekt koosneb kahest osast:
 
-## 🚀 Tehnoloogiad
+- 🧠 `tp-api/` – Node.js back-end + OpenAI integratsioon
+- 💻 `tp-client/` – React + MUI kasutajaliides
 
-- React + TypeScript + Vite
-- MUI (Material UI) komponentide raamistik
-- Node.js + Express back-end
-- OpenAI GPT-4 API kokkuvõtete genereerimiseks
-- Statistikaameti andmed (ISCO & EMTAK)
+---
 
-## 🧰 Projektistruktuur
+## 🚀 Kiirstart (Docker Compose)
 
-```
-├── public/
-│   └── logo.svg                # Logo ja favicon
-├── src/
-│   ├── components/             # Dropdownid ja formatter
-│   ├── services/
-│   │   └── fetch.ts            # API päringute utiliidid
-│   ├── classes/
-│   │   └── types.ts           # Tüübid (nt SalaryEntry, Option)
-│   ├── styles.ts              # Styled komponendid (Card, Layout)
-│   ├── App.tsx                # Põhikomponent
-│   └── App.css                # Üldine stiil
+1. Loo `.env` fail juurkausta:
+```env
+OPENAI_API_KEY=siia_sinu_openai_voti
 ```
 
-## 📦 Paigaldamine ja käivitamine (lokal)
-
-1. **Klooni repo**
-```bash
-git clone <repo-url>
-cd palgaotsing
-```
-
-2. **Paigalda sõltuvused**
-```bash
-npm install
-```
-
-3. **Loo .env fail**
-```bash
-cp .env.example .env
-```
-
-`.env` sisu:
-```
-VITE_API_BASE_URL=http://localhost:3000
-OPENAI_API_KEY=...siia oma võti...
-```
-
-4. **Käivita arendusserver**
-```bash
-npm run dev
-```
-
-## 🐳 Docker
-
-### Ehitamine ja käivitamine
+2. Käivita kogu rakendus:
 ```bash
 docker-compose up --build
 ```
 
-### Keskkonnamuutujad
-`.env` failis peab olema:
-```
-OPENAI_API_KEY=...sinuvõti...
-```
-
-See fail loetakse `docker-compose.yml` kaudu automaatselt sisse.
-
-## 🔗 API endpointid
-
-Kliendi poolelt tehakse päringuid järgmistele endpointidele:
-- `/activity-from-occupation/:code`
-- `/activities/search?q=`
-- `/occupations/search?q=`
-- `/salary` (POST)
-- `/api/summary` (POST)
-
-## 📊 Funktsionaalsus
-
-- Ameti või tegevusala valik (otsing + automaatne seos)
-- Keskmise palgaandmete küsimine
-- OpenAI abil genereeritud tekstiline prognoos
-- Formatteeritud kokkuvõte pealkirjade, loendite ja rõhutustega
-
-## 🎨 Kujundus
-- Responsive layout kaardipõhiselt
-- SVG logo ja ikoonid `public/` kaustas
-- Tume ja hele teema tugi (vastavalt `prefers-color-scheme`)
-
-## 📌 TODO või edasised ideed
-- Graafik palgaandmete visualiseerimiseks
-- Kasutajamärguanded (toasts)
-- Caching
-- Ühised hookid dropdownde jaoks
-- Testid komponentidele
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Backend: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-Made with ❤️ in Estonia
+## 🧠 tp-api (back-end)
+
+Express server, mis suhtleb Statistikaametiga ning kasutab OpenAI teenust kokkuvõtete koostamiseks.
+
+📂 Vaata lähemalt: [`tp-api/README.md`](./tp-api/README.md)
+
+### Peamised endpointid
+- `GET /occupations/search?q=`
+- `GET /activities/search?q=`
+- `GET /activity-from-occupation/:code`
+- `POST /salary`
+- `POST /api/summary`
+
+---
+
+## 💻 tp-client (front-end)
+
+React + Vite kasutajaliides, mille kaudu saab otsida ameteid ja tegevusalasid, kuvada palgaandmeid ja näha AI poolt vormindatud prognoosi.
+
+📂 Vaata lähemalt: [`tp-client/README.md`](./tp-client/README.md)
+
+### Funktsionaalsus
+- Ameti või tegevusala valik (otsi ja vali)
+- Palgaandmete kuvamine ajas
+- AI kokkuvõte ja soovitused
+- Responsive kujundus
+
+---
+
+## ⚙️ Arendus eraldi
+
+### API:
+```bash
+cd tp-api
+npm install
+npm run dev
+```
+
+### Client:
+```bash
+cd tp-client
+npm install
+npm run dev
+```
+
+---
+
+## 📌 Tehnoloogiad
+- Node.js + Express + TypeScript
+- React + Vite + MUI
+- OpenAI GPT-4 API
+- Statistikaameti PA103 + ISCO/EMTAK klassifikaator
+
+---
+
+## 📁 Projektistruktuur
+```
+projekt/
+├── tp-api/            # Back-end (Express + OpenAI)
+│   └── src/
+├── tp-client/         # Front-end (React + MUI)
+│   └── src/
+├── docker-compose.yml
+├── Dockerfile         # API jaoks
+└── README.md
+```
+
+---
+
+🎯 Loodud Eesti tööturu analüüsi toetamiseks

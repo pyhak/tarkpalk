@@ -1,26 +1,25 @@
-# Dockerfile – Node.js (Express) API jaoks
-FROM alpine:3.20
+version: '3.8'
 
-# Node.js versioon
-ENV NODE_VERSION=23.11.0
+services:
+  api:
+    build: ./tp-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
+    volumes:
+      - ./tp-api/data:/app/data
 
-# Paigalda Node.js (kasutame NodeSource või apk + curl)
-RUN apk add --no-cache nodejs npm
-
-# Töökataloog
-WORKDIR /app
-
-# Kopeerime package.json ja package-lock.json
-COPY package*.json ./
-
-# Installime ainult tootmissõltuvused
-RUN npm install --production
-
-# Kopeerime kogu rakenduse
-COPY . .
-
-# Avame pordi
-EXPOSE 3000
-
-# Käivitame serveri
-CMD ["node", "dist/index.js"]
+  client:
+    build: ./tp-client
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=http://localhost:3000
+    volumes:
+      - ./tp-client:/app
+    command: npm run dev
