@@ -1,5 +1,6 @@
 import express from 'express';
 import { loadIscoData, getAllIscoItems } from '../utils/iscoLoader';
+import { mapOccupationToActivity } from '../utils/occupationToActivityMapper';
 
 const router = express.Router();
 
@@ -37,6 +38,18 @@ router.get('/search', async (req, res) => {
     console.error('Otsing ebaõnnestus:', err);
     res.status(500).json({ error: 'Otsing ebaõnnestus' });
   }
+});
+
+router.get('/activity-from-occupation/:code', (req, res) => {
+  const occupationCode = req.params.code;
+  const activityCode = mapOccupationToActivity(occupationCode);
+
+  if (!activityCode) {
+    res.status(404).json({ error: 'Tegevusala ei leitud antud ametikoodile' });
+    return;
+  }
+
+  res.json({ activityCode });
 });
 
 export default router;

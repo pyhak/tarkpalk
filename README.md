@@ -33,7 +33,7 @@ Express server, mis suhtleb Statistikaametiga ning kasutab OpenAI teenust kokkuv
 ### Peamised endpointid
 - `GET /occupations/search?q=`
 - `GET /activities/search?q=`
-- `GET /activity-from-occupation/:code`
+- `GET /occupations/activity-from-occupation/:code`
 - `POST /salary`
 - `POST /api/summary`
 

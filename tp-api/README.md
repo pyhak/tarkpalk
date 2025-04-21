@@ -35,7 +35,7 @@ See kasutab `OPENAI_API_KEY` väärtust `.env` failist.
 ## 🛠️ Endpointid
 - `GET /occupations/search?q=`
 - `GET /activities/search?q=`
-- `GET /activity-from-occupation/:code`
+- `GET /occupations/activity-from-occupation/:code`
 - `POST /salary`
 - `POST /api/summary`
 

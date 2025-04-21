@@ -81,8 +81,9 @@ export const OccupationDropdown = ({ value, onChange }: Props) => {
       }}
       renderOption={(props, option) => {
         const isTopLevel = option.code.length === 1;
+        const { key, ...rest } = props;
         return (
-          <li {...props}>
+          <li key={key} {...rest}>
             <span style={{ paddingLeft: isTopLevel ? 0 : 16 }}>{option.name}</span>
           </li>
         );

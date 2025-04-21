@@ -27,7 +27,7 @@ app.use('/salary', salaryRouter);
 app.listen(PORT, async () => {
   console.log(`Server töötab pordil ${PORT}`);
 
-try {
+  try {
     const cachePath = path.join(__dirname, '../data/occupations.json');
     if (!fs.existsSync(cachePath)) {
       console.log('[Occupations] Cache puudub. Laen alla...');
