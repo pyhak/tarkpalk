@@ -1,4 +1,3 @@
-// src/utils/iscoLoader.ts
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -15,15 +14,8 @@ export class IscoNode {
     return this.name;
   }
 
-  get display(): string {
-    if (
-      this.parentName &&
-      this.parentName !== this.name &&
-      !this.name.toLowerCase().startsWith(this.parentName.toLowerCase())
-    ) {
-      return `${this.parentName} – ${this.name}`;
-    }
-    return this.name;
+  get category(): string {
+    return this.parentName || this.name;
   }
 }
 
@@ -53,7 +45,7 @@ export async function loadIscoData(): Promise<void> {
         )
     );
 
-  // leia level 3 parentid ametirühma kuvamiseks (level 4 ja 5 jaoks)
+  // leia level 3 parentid kategooria määramiseks (level 4 ja 5 jaoks)
   for (const node of allNodes) {
     if (!['4', '5'].includes(node.level)) continue;
 

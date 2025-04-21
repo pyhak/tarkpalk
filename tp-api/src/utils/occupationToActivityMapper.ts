@@ -8,12 +8,14 @@
 
 const occupationToActivityMap: Record<string, string> = {
     // IT
-    '25120003': 'J62', // Tarkvaraarendaja
-    '25120004': 'J62', // Tarkvarainsener
-    '25190002': 'J62', // Tarkvara testija
-    '25120002': 'J62', // Tarkvaradisainer
-    '25129900': 'J62', // Mujal liigitamata tarkvaraarendajad
-    '25199900': 'J62', // Muud mujal liigitamata tarkvara ja rakenduste arendajad
+    '2512': 'J62',      // Tarkvaraarendajad (grupp)
+    '2519': 'J62',      // Tarkvara ja rakenduste arendajad ning analüütikud, mujal liigitamata
+    '25120003': 'J62',  // Tarkvaraarendaja
+    '25120004': 'J62',  // Tarkvarainsener
+    '25190002': 'J62',  // Tarkvara testija
+    '25120002': 'J62',  // Tarkvaradisainer
+    '25129900': 'J62',  // Mujal liigitamata tarkvaraarendajad
+    '25199900': 'J62',  // Muud mujal liigitamata tarkvara ja rakenduste arendajad
   
     // Transport
     '83320001': 'H49', // Bussijuht

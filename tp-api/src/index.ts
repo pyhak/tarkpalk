@@ -1,4 +1,5 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import type { Request, Response } from "express";
 import dotenv from "dotenv";
 import axios from 'axios';
 import cors from 'cors';
@@ -6,7 +7,11 @@ import fs from 'fs';
 import { downloadOccupations } from './utils/occupationDownloader';
 import { generateSummary } from "./services/openaiService";
 import { loadIscoData, getAllIscoItems } from './utils/iscoLoader';
-import { getActivityOptions } from './services/activitiesService';
+import { getActivityOptions, fetchSalaryDataByGroupCode } from './services/activitiesService';
+import { findGroupCodeFor } from './utils/iscoLoader';
+import { mapOccupationToActivity } from './utils/occupationToActivityMapper';
+import { asyncHandler } from './utils/asyncHandler';
+
 import path from "path";
 
 dotenv.config();
@@ -46,26 +51,29 @@ app.get('/occupations', async (req, res) => {
 });
 
 app.get('/occupations/search', async (req, res) => {
-    try {
-      const query = (req.query.q as string)?.toLowerCase() ?? '';
-      await loadIscoData();
-  
-      const matches = getAllIscoItems()
-        .filter((item) =>
+  try {
+    const query = (req.query.q as string)?.toLowerCase() ?? '';
+    await loadIscoData();
+
+    const matches = getAllIscoItems()
+      .filter(
+        (item) =>
           ['4', '5'].includes(item.level) &&
           item.name.toLowerCase().includes(query)
-        )
-        .map((item) => ({
-          code: item.code,
-          name: item.display,
-        }));
-  
-      res.json(matches);
-    } catch (err) {
-      console.error('Otsing ebaõnnestus:', err);
-      res.status(500).json({ error: 'Otsing ebaõnnestus' });
-    }
-  });
+      )
+      .map((item) => ({
+        code: item.code,
+        name: item.name,
+        category: item.category,
+      }));
+
+    res.json(matches);
+  } catch (err) {
+    console.error('Otsing ebaõnnestus:', err);
+    res.status(500).json({ error: 'Otsing ebaõnnestus' });
+  }
+});
+
 
   app.get('/activities/search', async (req, res) => {
     try {
@@ -73,7 +81,7 @@ app.get('/occupations/search', async (req, res) => {
   
       const options = await getActivityOptions();
       const results = options.filter((opt) =>
-        opt.name.toLowerCase().includes(query)
+        opt.name.toLowerCase().includes(query) || opt.code.toLowerCase().includes(query)
       );
   
       res.json(results);
@@ -82,6 +90,46 @@ app.get('/occupations/search', async (req, res) => {
       res.status(500).json({ error: 'Tegevusalade laadimine ebaõnnestus' });
     }
   });
+
+  app.get('/activity-from-occupation/:code', asyncHandler(async (req: Request, res: Response) => {
+    const occupationCode = req.params.code;
+    const activity = mapOccupationToActivity(occupationCode);
+  
+    if (!activity) {
+      res.status(404).json({ error: 'Tegevusala ei leitud antud ametikoodile' });
+      return;
+    }
+  
+    res.json({ activityCode: activity });
+  }));
+
+  app.post('/salary', asyncHandler(async (req: Request, res: Response) => {
+    const { occupationCode, activityCode } = req.body;
+  
+    let groupCode: string | null = null;
+  
+    if (occupationCode) {
+      await loadIscoData();
+      const iscoGroup = findGroupCodeFor(occupationCode);
+      if (!iscoGroup) {
+        res.status(400).json({ error: 'Sobivat ISCO ametirühma ei leitud' });
+        return;
+      }
+      groupCode = mapOccupationToActivity(iscoGroup) ?? null;
+    }
+  
+    if (!groupCode && activityCode) {
+      groupCode = activityCode;
+    }
+  
+    if (!groupCode) {
+      res.status(400).json({ error: 'Puudub kehtiv groupCode' });
+      return;
+    }
+  
+    const salaryData = await fetchSalaryDataByGroupCode(groupCode);
+    res.json({ groupCode, salaryData });
+  }));
 
 app.listen(PORT, async () => {
     console.log(`Server töötab pordil ${PORT}`);

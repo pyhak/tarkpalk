@@ -1,3 +1,4 @@
+// components/ActivityDropdown.tsx
 import { useEffect, useMemo, useState } from 'react';
 import { Autocomplete, CircularProgress, TextField } from '@mui/material';
 
@@ -12,38 +13,40 @@ type Props = {
 };
 
 export const ActivityDropdown = ({ value, onChange }: Props) => {
-  const [inputValue, setInputValue] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [options, setOptions] = useState<Option[]>([]);
   const [selected, setSelected] = useState<Option | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Lae valitud tegevusala, kui kood teada
+  // Lae valitud tegevusala
   useEffect(() => {
     if (!value) {
       setSelected(null);
       return;
     }
-
+  
+    if (selected?.code === value) return;
+  
     fetch(`http://localhost:3000/activities/search?q=${encodeURIComponent(value)}`)
       .then((res) => res.json())
       .then((data: Option[]) => {
         const match = data.find((o) => o.code === value);
         if (match) {
           setSelected(match);
-          setInputValue(match.name);
+          setSearchValue(''); // ← oluline: puhastab käsitsi sisestuse
         }
       })
       .catch((err) => console.error('Tegevusala otsing ebaõnnestus:', err));
   }, [value]);
 
-  // Otsing sisendi järgi
+  // Tähehaaval otsing
   useEffect(() => {
-    if (inputValue.length < 2) return;
+    if (searchValue.length < 2 || !/[a-zA-ZäöüõÄÖÜÕ0-9]/.test(searchValue)) return;
 
     setLoading(true);
     const controller = new AbortController();
 
-    fetch(`http://localhost:3000/activities/search?q=${encodeURIComponent(inputValue)}`, {
+    fetch(`http://localhost:3000/activities/search?q=${encodeURIComponent(searchValue)}`, {
       signal: controller.signal,
     })
       .then((res) => res.json())
@@ -54,7 +57,7 @@ export const ActivityDropdown = ({ value, onChange }: Props) => {
       .finally(() => setLoading(false));
 
     return () => controller.abort();
-  }, [inputValue]);
+  }, [searchValue]);
 
   const combinedOptions = useMemo(() => {
     if (selected && !options.some((o) => o.code === selected.code)) {
@@ -71,13 +74,16 @@ export const ActivityDropdown = ({ value, onChange }: Props) => {
       fullWidth
       onChange={(_, newValue) => {
         setSelected(newValue);
-        setInputValue(newValue?.name || '');
         onChange(newValue?.code || null);
+        setSearchValue('');
       }}
-      inputValue={inputValue}
+      inputValue={searchValue || selected?.name || ''}
       onInputChange={(_, val, reason) => {
         if (reason === 'input') {
-          setInputValue(val);
+          setSearchValue(val);
+        }
+        if (reason === 'clear' || reason === 'reset') {
+          setSearchValue('');
         }
       }}
       renderInput={(params) => (
@@ -98,7 +104,7 @@ export const ActivityDropdown = ({ value, onChange }: Props) => {
       )}
       isOptionEqualToValue={(o, v) => o.code === v.code}
       noOptionsText={
-        inputValue.length < 2 ? 'Alusta sisestamist' : 'Otsitavat tegevusala ei leitud'
+        searchValue.length < 2 ? 'Alusta sisestamist' : 'Otsitavat tegevusala ei leitud'
       }
       clearOnBlur={false}
       autoHighlight
