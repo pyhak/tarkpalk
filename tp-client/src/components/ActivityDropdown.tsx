@@ -31,7 +31,7 @@ export const ActivityDropdown = ({ value, onChange }: Props) => {
         }
       })
       .catch((err) => console.error('Tegevusala otsing ebaõnnestus:', err));
-  }, [value]);
+  }, [value, selected?.code]);
 
   useEffect(() => {
     if (searchValue.length < 2 || !/[a-zA-ZäöüõÄÖÜÕ0-9]/.test(searchValue)) return;

@@ -8,9 +8,13 @@ export interface ActivityOption {
 
 export async function getActivityOptions(): Promise<ActivityOption[]> {
   const response = await axios.get(STAT_API_BASE);
-  const variables = (response.data as { variables: any[] }).variables;
+  type Variable = { code: string; values: string[]; valueTexts: string[] };
 
-  const activityVar = variables.find((v: any) => v.code === 'Tegevusala');
+  const variables = (response.data as { variables: Variable[] }).variables;
+
+  
+
+  const activityVar = variables.find((v: Variable) => v.code === 'Tegevusala');
   if (!activityVar) {
     throw new Error('Tegevusala ei leitud metadata vastusest');
   }

@@ -19,6 +19,13 @@ export class IscoNode {
   }
 }
 
+type ISCOItem = {
+  Code: string;
+  Label: { ['et-EE']: string };
+  ItemLevel: string;
+  ParentItem?: { Code: string };
+};
+
 let iscoList: IscoNode[] | null = null;
 
 export async function loadIscoData(): Promise<void> {
@@ -34,9 +41,9 @@ export async function loadIscoData(): Promise<void> {
   }
 
   const allNodes: IscoNode[] = items
-    .filter((item: any) => item.Code)
+    .filter((item: ISCOItem) => item.Code)
     .map(
-      (item: any) =>
+      (item: ISCOItem) =>
         new IscoNode(
           item.Code,
           item.Label?.['et-EE'] ?? '(nimetu)',

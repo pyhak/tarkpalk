@@ -30,7 +30,7 @@ export const OccupationDropdown = ({ value, onChange }: Props) => {
         }
       })
       .catch((err) => console.error('Ametit ei leitud:', err));
-  }, [value]);
+  }, [value, selected?.code]);
 
   useEffect(() => {
     if (searchValue.length < 2 || !/[a-zA-ZäöüõÄÖÜÕ0-9]/.test(searchValue)) return;
