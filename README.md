@@ -93,4 +93,4 @@ projekt/
 
 ---
 
-🎯 Loodud Eesti tööturu analüüsi toetamiseks
+🎯 Loodud Äripäevale proovitööks.
