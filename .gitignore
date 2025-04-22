@@ -398,5 +398,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
+# tests
+coverage/
 .env

@@ -7,7 +7,7 @@
 
 ---
 
-## 🚀 Kiirelt käima (Docker Compose)
+## ⚛️ Kiirelt käima (Docker Compose)
 
 1. Klooni projekt:
 ```bash
@@ -96,7 +96,8 @@ projekt/
 ├── Dockerfile         # API jaoks
 └── README.md
 ```
-
+🧪 Märkus: ISCO-EMTAK vastendamine on prototüübiline ning mõeldud ainult testimiseks. Täielikku klassifikaatori katvust ja ametlikku loogikat ei ole implementeeritud.
 ---
 
 🎯 Loodud Äripäevale proovitööks.
+
