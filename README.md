@@ -7,14 +7,20 @@
 
 ---
 
-## 🚀 Kiirstart (Docker Compose)
+## 🚀 Kiirelt käima (Docker Compose)
 
-1. Loo `.env` fail juurkausta:
+1. Klooni projekt:
+```bash
+git clone https://github.com/pyhak/tarkpalk.git
+cd tarkpalk
+```
+
+2. Loo `.env` fail projekti juurkausta:
 ```env
 OPENAI_API_KEY=siia_sinu_openai_voti
 ```
 
-2. Käivita kogu rakendus:
+3. Käivita kogu rakendus:
 ```bash
 docker-compose up --build
 ```
