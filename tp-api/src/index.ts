@@ -4,6 +4,8 @@ import cors from 'cors';
 import fs from 'fs';
 import path from "path";
 
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 import occupationsRouter from './routes/occupations';
 import activitiesRouter from './routes/activities';
 import summaryRouter from './routes/summary';
@@ -11,7 +13,6 @@ import salaryRouter from './routes/salary';
 
 import { downloadOccupations } from './utils/occupationDownloader';
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use('/occupations', occupationsRouter);
 app.use('/activities', activitiesRouter);
 app.use('/api/summary', summaryRouter);
 app.use('/salary', salaryRouter);
+app.use('/summary', summaryRouter);
 
 app.listen(PORT, async () => {
   console.log(`Server töötab pordil ${PORT}`);

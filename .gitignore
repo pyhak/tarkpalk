@@ -400,4 +400,5 @@ FodyWeavers.xsd
 *.sln.iml
 # tests
 coverage/
+tp-api/coverage/
 .env

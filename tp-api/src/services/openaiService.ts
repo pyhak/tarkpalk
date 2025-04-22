@@ -1,10 +1,16 @@
 import OpenAI from "openai";
 
 export async function generateSummary(inputData: string): Promise<string> {
+
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is missing in environment');
+  }
+
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
+  
   const prompt = `Siin on palgaandmed valdkonna kohta:\n${inputData}\n
 Koosta lihtsas eesti keeles kokkuvõte, mis selgitab:\n
 - kas palk tõuseb/langeb ja miks\n

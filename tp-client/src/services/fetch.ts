@@ -22,7 +22,7 @@ export async function fetchSalaryData(body: SalaryRequest): Promise<SalaryEntry[
 }
 
 export async function fetchSummary(salaryData: SalaryEntry[]): Promise<string | null> {
-  const res = await fetch(`${API_BASE_URL}/api/summary`, {
+  const res = await fetch(`${API_BASE_URL}/summary`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: JSON.stringify(salaryData) }),
