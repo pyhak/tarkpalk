@@ -40,3 +40,4 @@ app.listen(PORT, async () => {
     console.error('[Occupations] Allalaadimine ebaõnnestus:', err);
   }
 });
+export default app;

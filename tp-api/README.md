@@ -2,7 +2,7 @@
 
 Back-end teenus, mis pakub palgaandmete päringut ISCO/EMTAK koodide alusel ning kasutab OpenAI teenust kokkuvõtte genereerimiseks.
 
-## 🚀 Käivitamine lokaalselt
+## ⚛️ Käivitamine lokaalselt
 
 ### 1. Paigalda sõltuvused
 ```bash
@@ -26,6 +26,20 @@ npm run build
 node dist/index.js
 ```
 
+## 💡 Testimine
+
+Projekt kasutab `Jest` ja `Supertest` testimiseks.
+
+### Testide käivitamine:
+```bash
+npm test
+```
+
+### Koodikattuvuse raport:
+```bash
+npm run test:coverage
+```
+
 ## 🐳 Docker
 ```bash
 docker-compose up --build
@@ -47,3 +61,6 @@ src/
 ├── utils/        # Andmetöötlus, ISCO loader, mapper
 ├── config.ts     # URL-konstandid
 └── index.ts      # Entry point
+```
+📌 Märkus: `ISCO → EMTAK` vastendust kasutatakse testotstarbel. Tegemist on lihtsustatud prototüübiga, mis ei kajasta kõiki klassifikaatori reegleid ega hierarhiaid.
+
